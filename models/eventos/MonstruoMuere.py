@@ -1,7 +1,8 @@
 
-from models.eventos.Evento import Event
+from models.eventos.Evento import Evento
 
 class MonstruoMuere(Evento):
 
-    def gatillarEvento(self):
-        pass
+    def visitarJuego(self, juego: 'Juego'):
+        juego.pasarASiguienteMonstruo()
+        

@@ -1,5 +1,3 @@
-import sys
-sys.path.append("/Users/jorgesuarez/Desktop/test/python_test/")
 
 from models.monstruos.Monstruo import Monstruo
 from models.armas.Espada import Espada
