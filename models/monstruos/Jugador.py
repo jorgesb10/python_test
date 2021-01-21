@@ -3,6 +3,7 @@ sys.path.append("/Users/jorgesuarez/Desktop/test/python_test/")
 
 from models.monstruos.Monstruo import Monstruo
 from models.armas.Espada import Espada
+from models.eventos.JugadorMuere import JugadorMuere
 
 class Jugador(Monstruo):
     def __init__(self, nombre:str):
@@ -12,4 +13,8 @@ class Jugador(Monstruo):
         self.vidaMaxima += 3
         if self.vidaActual > self.vidaMaxima:
             self.vidaActual = self.vidaMaxima
+            self.morir()
 
+    def morir(self) -> None:
+        self.eventoObservable.on_next(JugadorMuere())
+        self.eventoObservable.on_completed()
