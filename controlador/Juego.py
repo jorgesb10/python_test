@@ -1,12 +1,13 @@
 
 import typing
 from rx.subject import Subject
-from models.monstruos.Monstruo import Monstruo
+
 
 
 if typing.TYPE_CHECKING:
     from models.monstruos.Goblin import Goblin
     from models.eventos.Evento import Evento
+    from models.monstruos.Monstruo import Monstruo
 
 class Juego:
 
@@ -17,9 +18,10 @@ class Juego:
             Goblin(),
             Goblin()
         ]
-        self.jugadorDisposable = self.eventoObservable.subcribe()
+
+        self.jugadorDisposable = self.eventoObservable.subcribe(self.aceptarEvento)
         self.monstruoActualDisposable = \
-            self.monstruoActual.eventoObservable.subscribe()
+            self.monstruoActual.eventoObservable.subscribe(self.aceptarEvento)
 
         self.resultado: Subject[bool] = Subject()
         self.nombreSiguienteMonstruo: Subject[str] = Subject() 
@@ -41,4 +43,27 @@ class Juego:
     def aceptarEvento(self,evento: 'Evento') -> None:
         evento.visitarJuego(self)
 
+    def pasarASiguienteMonstruo(self)-> None:
+        self.monstruoActualDisposable.dispose()
+        if len(self.monstruoLista)==0:
+            self.ganar()
+        else:   
+            self.monstruoActual = self.monstruoLista.pop()
+            self.monstruoActualDisposable=\
+                self.monstruoActual.eventoObservable.subscribe(self.aceptarEvento)
+            self.nombreSiguienteMonstruo.on_next(self.monstruoActual.__str__())
 
+    def interaccion(self,
+                    monstruoAtacante: 'Monstruo',
+                    monstruoAtacado: 'Monstruo')->str:
+        monstruoAtacante.atacar(monstruoAtacado)
+        return "{} recibió daño".format(monstruoAtacado.__str__())
+
+    def jugadorAtaca(self)->str:
+        return self.interaccion(self.jugador, self.monstruoActual)
+
+    def monstruoAtaca(self)->str:
+        return self.interaccion(self.monstruoActual,self.jugador)
+    
+    def comenzar(self)->None:
+        self.nombreSiguienteMonstruo.on_next(self.monstruoActual.__str__())
